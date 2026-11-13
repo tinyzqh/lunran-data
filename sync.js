@@ -1,4 +1,4 @@
-// 拉取 Hugging Face Daily Papers 最近 7 天的论文及社区点赞数，写入 data/hf-papers.json
+// 拉取 Hugging Face Daily Papers 最近 30 天、社区点赞 ≥ 10 的论文，写入 data/hf-papers.json
 // 由 GitHub Actions 每小时运行（腾讯云访问不了 huggingface.co，所以放在海外跑）
 // 只保存 arXiv 公开元数据（标题、作者、摘要）和点赞数；不保存 HF 自己生成的 AI 摘要等内容
 // 运行环境：Node 20+，无第三方依赖
@@ -6,7 +6,8 @@
 const fs = require('fs')
 const path = require('path')
 
-const DAYS = 7
+const DAYS = 30
+const MIN_UPVOTES = 10 // 只保留社区认可的论文
 const API = 'https://huggingface.co/api/daily_papers'
 const OUT = path.join(__dirname, 'data', 'hf-papers.json')
 
@@ -52,13 +53,13 @@ async function main() {
 
   const cutoff = Date.now() - (DAYS + 1) * 86400e3
   const papers = [...byId.values()]
-    .filter((p) => Date.parse(p.dailyAt) >= cutoff)
+    .filter((p) => Date.parse(p.dailyAt) >= cutoff && p.upvotes >= MIN_UPVOTES)
     .sort((a, b) => b.upvotes - a.upvotes)
 
   if (!papers.length) throw new Error('no papers fetched, keep previous file')
 
   fs.mkdirSync(path.dirname(OUT), { recursive: true })
-  fs.writeFileSync(OUT, JSON.stringify({ updatedAt: new Date().toISOString(), count: papers.length, papers }, null, 1))
+  fs.writeFileSync(OUT, JSON.stringify({ updatedAt: new Date().toISOString(), count: papers.length, papers }))
   console.log(`wrote ${papers.length} papers, top: ${papers[0].upvotes} ${papers[0].title}`)
 }
 

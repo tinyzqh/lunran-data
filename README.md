@@ -2,7 +2,7 @@
 
 论澜小程序的 Hugging Face Daily Papers 数据同步。
 
-GitHub Actions 每小时运行 `sync.js`，拉取 Hugging Face Daily Papers 最近 7 天的论文和社区点赞数，
+GitHub Actions 每小时运行 `sync.js`，拉取 Hugging Face Daily Papers 最近 30 天、社区点赞 ≥ 10 的论文，
 写入 `data/hf-papers.json`。小程序的云函数 `fetchSources` 再从
 `raw.githubusercontent.com`（备用 jsDelivr）下载这个文件入库。
 
