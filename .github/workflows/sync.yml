@@ -4,6 +4,11 @@ on:
   schedule:
     - cron: '20 * * * *' # 每小时第 20 分钟（UTC）
   workflow_dispatch: # 允许在 GitHub 网页上手动运行
+  push: # 同步脚本或工作流有改动时立即运行一次（数据文件的提交不会触发，避免循环）
+    branches: [main]
+    paths:
+      - sync.js
+      - .github/workflows/sync.yml
 
 permissions:
   contents: write
